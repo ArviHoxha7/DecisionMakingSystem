@@ -1,12 +1,86 @@
-% Octave script for Fuzzy AHP
+% Octave script for Fuzzy AHP with 15 experts and missing values handling
 
-% Define fuzzy comparison matrices for criteria
-criteria_comparison = [
-    1, 0.5, 2, 1.5;
-    2, 1, 3, 2.5;
-    0.5, 0.33, 1, 0.75;
-    0.67, 0.4, 1.33, 1
-];
+% Define the random index (RI) for different matrix sizes
+RI = [0, 0, 0.58, 0.9, 1.12, 1.24, 1.32, 1.41, 1.45];
+
+% Function to calculate the maximum eigenvalue (λ_max) and consistency index (CI)
+function [lambda_max, CI] = calculate_consistency(matrix)
+    [V, D] = eig(matrix);
+    lambda_max = max(diag(D));
+    n = size(matrix, 1);
+    CI = (lambda_max - n) / (n - 1);
+end
+
+% Function to check consistency and return a consistent matrix
+function consistent_matrix = ensure_consistency(matrix, RI)
+    n = size(matrix, 1);
+    [lambda_max, CI] = calculate_consistency(matrix);
+    CR = CI / RI(n);
+    while CR > 0.1
+        matrix = randi([1, 9], n, n); % Replace with new random matrix
+        for i = 1:n
+            for j = 1:n
+                if i == j
+                    matrix(i, j) = 1;
+                elseif i < j
+                    matrix(i, j) = randi([1, 9]);
+                    matrix(j, i) = 1 / matrix(i, j);
+                end
+            end
+        end
+        [lambda_max, CI] = calculate_consistency(matrix);
+        CR = CI / RI(n);
+    end
+    consistent_matrix = matrix;
+end
+
+% Define comparison matrices for criteria by each expert (15 experts)
+num_experts = 15;
+num_criteria = 4;
+expert_comparisons = cell(num_experts, 1);
+
+for k = 1:num_experts
+    expert_comparisons{k} = NaN(num_criteria, num_criteria);
+    for i = 1:num_criteria
+        for j = 1:num_criteria
+            if i == j
+                expert_comparisons{k}(i, j) = 1;
+            elseif i < j
+                expert_comparisons{k}(i, j) = randi([1, 9]);
+                expert_comparisons{k}(j, i) = 1 / expert_comparisons{k}(i, j);
+            end
+        end
+    end
+    expert_comparisons{k} = ensure_consistency(expert_comparisons{k}, RI);
+end
+
+% Handle missing values by taking the average from other experts
+for i = 1:num_criteria
+    for j = 1:num_criteria
+        if i ~= j
+            values = [];
+            for k = 1:num_experts
+                if ~isnan(expert_comparisons{k}(i, j))
+                    values = [values, expert_comparisons{k}(i, j)];
+                end
+            end
+            avg_value = mean(values);
+            for k = 1:num_experts
+                if isnan(expert_comparisons{k}(i, j))
+                    expert_comparisons{k}(i, j) = avg_value;
+                    expert_comparisons{k}(j, i) = 1 / avg_value;
+                end
+            end
+        end
+    end
+end
+
+% Calculate the average comparison matrix for criteria
+average_comparison = zeros(num_criteria, num_criteria);
+for k = 1:num_experts
+    average_comparison += expert_comparisons{k};
+end
+average_comparison /= num_experts;
 
 % Fuzzification with triangular membership function
 function fuzzy_value = fuzzify(value)
@@ -23,12 +97,12 @@ function fuzzy_value = fuzzify(value)
 end
 
 % Initialize an empty cell array to store the fuzzified matrix
-fuzzy_matrix = cell(size(criteria_comparison));
+fuzzy_matrix = cell(size(average_comparison));
 
 % Apply the fuzzification function to each element in the matrix
-for i = 1:size(criteria_comparison, 1)
-    for j = 1:size(criteria_comparison, 2)
-        fuzzy_matrix{i, j} = fuzzify(criteria_comparison(i, j));
+for i = 1:size(average_comparison, 1)
+    for j = 1:size(average_comparison, 2)
+        fuzzy_matrix{i, j} = fuzzify(average_comparison(i, j));
     end
 end
 
@@ -118,12 +192,15 @@ disp(normalized_weights);
 % Ensure normalized_weights is a column vector
 normalized_weights = normalized_weights(:);
 
-% Define player scores for each criterion (Performance, Skills, Age, Cost)
-player_scores = [
-    8, 9, 6, 7; % Cristiano Ronaldo
-    9, 10, 7, 8; % Lionel Messi
-    7, 8, 9, 6  % Kylian Mbappe
-];
+% Check if player_scores is already defined
+if ~exist('player_scores', 'var')
+    % Define player scores for each criterion (Performance, Skills, Age, Cost)
+    player_scores = [
+        9, 10, 6, 7; % Cristiano Ronaldo
+        9, 10, 7, 8; % Lionel Messi
+        7, 8, 9, 6  % Kylian Mbappe
+    ];
+end
 
 % Calculate weighted scores for each player
 weighted_scores = player_scores * normalized_weights;
