@@ -11,14 +11,14 @@ criteria_comparison = [
 % Fuzzification with triangular membership function
 function fuzzy_value = fuzzify(value)
     if value == 1
-      fuzzy_value = [1,1,1];
+        fuzzy_value = [1, 1, 1];
     elseif value == 9
-      fuzzy_value = [9,9,9];
+        fuzzy_value = [9, 9, 9];
     elseif value < 1 
-      x = 1/value;
-      fuzzy_value = [1/(x+1), value, 1/(x-1)]; 
+        x = 1 / value;
+        fuzzy_value = [1 / (x + 1), value, 1 / (x - 1)]; 
     else
-      fuzzy_value = [max((value - 1), 0), value, value + 1];
+        fuzzy_value = [max((value - 1), 0), value, value + 1];
     end
 end
 
@@ -33,8 +33,9 @@ for i = 1:size(criteria_comparison, 1)
 end
 
 % Display the fuzzified matrix
+disp('Fuzzified Matrix:');
 disp(fuzzy_matrix);
-%%%%%%%%%%%%%%%%%%
+
 % Function to calculate fuzzy geometric mean for a row
 function r_i = fuzzy_geometric_mean(row)
     n = length(row);
@@ -48,9 +49,9 @@ function r_i = fuzzy_geometric_mean(row)
         u_values(i) = row{i}(3);
     end
     
-    l_mean = prod(l_values)^(1/n);
-    m_mean = prod(m_values)^(1/n);
-    u_mean = prod(u_values)^(1/n);
+    l_mean = prod(l_values) ^ (1 / n);
+    m_mean = prod(m_values) ^ (1 / n);
+    u_mean = prod(u_values) ^ (1 / n);
     
     r_i = [l_mean, m_mean, u_mean];
 end
@@ -99,7 +100,7 @@ end
 
 % Display the defuzzified weights
 disp('Defuzzified Weights:');
-disp(defuzzified_weights)
+disp(defuzzified_weights);
 
 % Function to normalize the defuzzified weights
 function normalized_weights = normalize_weights(weights)
@@ -114,3 +115,28 @@ normalized_weights = normalize_weights(defuzzified_weights);
 disp('Normalized Weights:');
 disp(normalized_weights);
 
+% Ensure normalized_weights is a column vector
+normalized_weights = normalized_weights(:);
+
+% Define player scores for each criterion (Performance, Skills, Age, Cost)
+player_scores = [
+    8, 9, 6, 7; % Cristiano Ronaldo
+    9, 10, 7, 8; % Lionel Messi
+    7, 8, 9, 6  % Kylian Mbappe
+];
+
+% Calculate weighted scores for each player
+weighted_scores = player_scores * normalized_weights;
+
+% Display the weighted scores
+disp('Weighted Scores:');
+disp(weighted_scores);
+
+% Determine the best player
+[~, best_player_index] = max(weighted_scores);
+players = {'Cristiano Ronaldo', 'Lionel Messi', 'Kylian Mbappe'};
+best_player = players{best_player_index};
+
+% Display the best player
+disp('Best Player to Acquire:');
+disp(best_player);
