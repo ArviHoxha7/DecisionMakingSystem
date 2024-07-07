@@ -217,3 +217,4 @@ best_player = players{best_player_index};
 % Display the best player
 disp('Best Player to Acquire:');
 disp(best_player);
+save('fuzzy_AHP_results.mat', 'normalized_weights', 'player_scores', 'players', 'weighted_scores');
