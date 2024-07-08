@@ -1,6 +1,3 @@
-% Octave script for Fuzzy AHP with 15 experts and missing values handling
-
-% Define the random index (RI) for different matrix sizes
 RI = [0, 0, 0.58, 0.9, 1.12, 1.24, 1.32, 1.41, 1.45];
 
 % Function to calculate the maximum eigenvalue (λ_max) and consistency index (CI)
@@ -106,7 +103,6 @@ for i = 1:size(average_comparison, 1)
     end
 end
 
-% Display the fuzzified matrix
 disp('Fuzzified Matrix:');
 disp(fuzzy_matrix);
 
@@ -143,11 +139,10 @@ for i = 1:size(fuzzy_matrix, 1)
     sum_u_mean += fuzzy_geometric_means{i}(3);
 end
 
-% Display the fuzzy geometric means
 disp('Fuzzy Geometric Means:');
 disp(fuzzy_geometric_means);
 
-% Calculate fuzzy weights for each criterion
+% Calculate fuzzy weights for each criterio
 fuzzy_weights = cell(size(fuzzy_geometric_means));
 for i = 1:size(fuzzy_geometric_means, 1)
     fuzzy_weights{i} = [
@@ -157,7 +152,6 @@ for i = 1:size(fuzzy_geometric_means, 1)
     ];
 end
 
-% Display the fuzzy weights
 disp('Fuzzy Weights:');
 disp(fuzzy_weights);
 
@@ -172,7 +166,6 @@ for i = 1:length(fuzzy_weights)
     defuzzified_weights(i) = defuzzify(fuzzy_weights{i});
 end
 
-% Display the defuzzified weights
 disp('Defuzzified Weights:');
 disp(defuzzified_weights);
 
@@ -185,7 +178,6 @@ end
 % Normalize the defuzzified weights
 normalized_weights = normalize_weights(defuzzified_weights);
 
-% Display the normalized weights
 disp('Normalized Weights:');
 disp(normalized_weights);
 
@@ -205,16 +197,13 @@ end
 % Calculate weighted scores for each player
 weighted_scores = player_scores * normalized_weights;
 
-% Display the weighted scores
 disp('Weighted Scores:');
 disp(weighted_scores);
 
-% Determine the best player
 [~, best_player_index] = max(weighted_scores);
 players = {'Cristiano Ronaldo', 'Lionel Messi', 'Kylian Mbappe'};
 best_player = players{best_player_index};
 
-% Display the best player
 disp('Best Player to Acquire:');
 disp(best_player);
 save('fuzzy_AHP_results.mat', 'normalized_weights', 'player_scores', 'players', 'weighted_scores');

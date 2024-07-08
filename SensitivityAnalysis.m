@@ -1,12 +1,8 @@
-% Sensitivity Analysis using Monte Carlo Simulation for Fuzzy AHP
-
-% Load initial results
 load('fuzzy_AHP_results.mat');
 
 % Define the perturbation strengths
-s_values = [0.1, 0.2, 0.6];
+s_values = [0.2, 0.3, 0.4, 0.5, 0.6];
 
-% Number of simulations
 N = 10^4;
 
 % Store results
@@ -52,7 +48,6 @@ for idx = 1:length(s_values)
     final_ranks(:, idx) = new_ranks;
 end
 
-% Display results
 disp('Initial Ranks:');
 disp(initial_ranks);
 
@@ -67,7 +62,7 @@ for idx = 1:length(s_values)
     fprintf('s = %.1f: PRR = %.4f\n', s_values(idx), PRR(idx));
 end
 
-% Plot PRR as a function of s
+% Plot PRR
 figure;
 plot(s_values, PRR, '-o');
 xlabel('Perturbation Strength (s)');
@@ -75,5 +70,4 @@ ylabel('Probability of Rank Reversal (PRR)');
 title('PRR as a Function of Perturbation Strength');
 grid on;
 
-% Save results
 save('sensitivity_analysis_results.mat', 'initial_ranks', 'final_ranks', 'PRR', 's_values');
